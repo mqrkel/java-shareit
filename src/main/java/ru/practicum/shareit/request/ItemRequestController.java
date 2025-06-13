@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +33,7 @@ public class ItemRequestController {
      * @return DTO созданного запроса с деталями.
      */
     @PostMapping
-    public ItemRequestResponseDto createRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemRequestResponseDto createRequest(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @Valid @RequestBody final ItemRequestDto dto) {
         log.info("POST /requests by userId {}", userId);
         return requestService.create(userId, dto);
@@ -45,7 +46,7 @@ public class ItemRequestController {
      * @return Список DTO собственных запросов пользователя.
      */
     @GetMapping
-    public List<ItemRequestResponseDto> getOwnRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestResponseDto> getOwnRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET /requests (own) by userId {}", userId);
         return requestService.getOwnRequests(userId);
     }
@@ -57,7 +58,7 @@ public class ItemRequestController {
      * @return Список DTO чужих запросов.
      */
     @GetMapping("/all")
-    public List<ItemRequestResponseDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestResponseDto> getAllRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET /requests/all by userId {}", userId);
         return requestService.getAllRequests(userId);
     }

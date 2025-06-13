@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +33,7 @@ public class BookingController {
      */
     @PostMapping
     public BookingResponseDto createBooking(@RequestBody @Valid BookingDto bookingDto,
-                                            @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                            @Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("POST /bookings by userId {}", userId);
         return bookingService.createBooking(bookingDto, userId);
     }
@@ -46,8 +47,8 @@ public class BookingController {
      * @return Обновлённая информация о бронировании.
      */
     @PatchMapping("/{bookingId}")
-    public BookingResponseDto approveBooking(@PathVariable Long bookingId,
-                                             @RequestHeader("X-Sharer-User-Id") Long ownerId,
+    public BookingResponseDto approveBooking(@Positive @PathVariable Long bookingId,
+                                             @Positive @RequestHeader("X-Sharer-User-Id") Long ownerId,
                                              @RequestParam boolean approved) {
         log.info("PATCH /bookings/{}?approved={} by ownerId {}", bookingId, approved, ownerId);
         return bookingService.approveBooking(bookingId, ownerId, approved);
@@ -62,8 +63,8 @@ public class BookingController {
      * @return Информация о бронировании.
      */
     @GetMapping("/{bookingId}")
-    public BookingResponseDto getBookingById(@PathVariable Long bookingId,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public BookingResponseDto getBookingById(@Positive @PathVariable Long bookingId,
+                                             @Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET /bookings/{} by userId {}", bookingId, userId);
         return bookingService.getBookingById(bookingId, userId);
     }
@@ -85,7 +86,7 @@ public class BookingController {
      * @return Список бронирований, соответствующих фильтру.
      */
     @GetMapping
-    public List<BookingResponseDto> getBookingsByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingResponseDto> getBookingsByBooker(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
                                                         @RequestParam String state,
                                                         @RequestParam(defaultValue = "0") int from,
                                                         @RequestParam(defaultValue = "10") int size) {
@@ -103,7 +104,7 @@ public class BookingController {
      * @return Список бронирований для вещей владельца.
      */
     @GetMapping("/owner")
-    public List<BookingResponseDto> getBookingsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+    public List<BookingResponseDto> getBookingsByOwner(@Positive @RequestHeader("X-Sharer-User-Id") Long ownerId,
                                                        @RequestParam(defaultValue = "ALL") String state,
                                                        @RequestParam(defaultValue = "0") int from,
                                                        @RequestParam(defaultValue = "10") int size) {

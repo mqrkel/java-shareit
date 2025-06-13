@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -34,7 +35,7 @@ public class ItemController {
      */
     @PostMapping
     public ItemResponseDto create(@RequestBody @Valid final ItemDto itemDto,
-                                  @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+                                  @Positive @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("POST /items - создание вещи пользователем ID={}", ownerId);
         ItemResponseDto created = itemService.create(itemDto, ownerId);
         log.debug("Вещь создана: {}", created);
@@ -50,9 +51,9 @@ public class ItemController {
      * @return DTO обновленной вещи.
      */
     @PatchMapping("/{itemId}")
-    public ItemResponseDto update(@PathVariable Long itemId,
+    public ItemResponseDto update(@Positive @PathVariable Long itemId,
                                   @Valid @RequestBody ItemUpdateDto updateDto,
-                                  @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+                                  @Positive @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("PATCH /items/{} - обновление вещи пользователем ID={}", itemId, ownerId);
         ItemResponseDto updated = itemService.update(itemId, updateDto, ownerId);
         log.debug("Вещь обновлена: {}", updated);
@@ -67,7 +68,7 @@ public class ItemController {
      * @return DTO запрашиваемой вещи.
      */
     @GetMapping("/{itemId}")
-    public ItemResponseDto getById(@PathVariable Long itemId,
+    public ItemResponseDto getById(@Positive @PathVariable Long itemId,
                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET /items/{} - запрос вещи пользователем ID={}", itemId, userId);
         return itemService.getById(itemId, userId);
@@ -80,7 +81,7 @@ public class ItemController {
      * @return Список DTO вещей владельца.
      */
     @GetMapping
-    public List<ItemResponseDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemResponseDto> getItemsByOwner(@Positive @RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("GET /items - получение всех вещей пользователя ID={}", ownerId);
         return itemService.getItemsByOwner(ownerId);
     }

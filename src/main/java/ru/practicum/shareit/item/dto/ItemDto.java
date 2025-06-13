@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ItemDto {
-    Long id;
+    private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
     private String name;

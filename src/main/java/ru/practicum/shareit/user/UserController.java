@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class UserController {
      * @return DTO обновленного пользователя.
      */
     @PatchMapping("/{id}")
-    public UserResponseDto update(@PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+    public UserResponseDto update(@Positive  @PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         log.info("PATCH /users/{} - обновление пользователя", id);
         UserResponseDto updatedUser = userService.update(id, userUpdateDto);
         log.debug("Пользователь обновлен: {}", updatedUser);
@@ -63,7 +64,7 @@ public class UserController {
      * @return DTO пользователя с указанным ID.
      */
     @GetMapping("/{id}")
-    public UserResponseDto getById(@PathVariable Long id) {
+    public UserResponseDto getById(@Positive @PathVariable Long id) {
         log.info("GET /users/{} - получение пользователя", id);
         return userService.getById(id);
     }
@@ -86,7 +87,7 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@Positive @PathVariable Long id) {
         log.info("DELETE /users/{} - удаление пользователя", id);
         userService.delete(id);
         log.debug("Пользователь с ID={} удалён", id);
