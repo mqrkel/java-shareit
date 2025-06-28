@@ -58,8 +58,10 @@ public class ItemRequestController {
      * @return Список DTO чужих запросов.
      */
     @GetMapping("/all")
-    public List<ItemRequestResponseDto> getAllRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestResponseDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                       @RequestParam(defaultValue = "0") int from,
+                                                       @RequestParam(defaultValue = "10") int size) {
         log.info("GET /requests/all by userId {}", userId);
-        return requestService.getAllRequests(userId);
+        return requestService.getAllRequests(userId, from, size);
     }
 }

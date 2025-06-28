@@ -6,6 +6,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
+import java.util.Collections;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
 
@@ -20,6 +22,7 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .ownerId(item.getOwner() != null ? item.getOwner().getId() : null)
                 .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
+                .comments(Collections.emptyList())
                 .build();
     }
 
