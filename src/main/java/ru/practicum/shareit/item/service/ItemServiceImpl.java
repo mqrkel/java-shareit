@@ -136,6 +136,7 @@ public class ItemServiceImpl implements ItemService {
         return items.stream().map(ItemMapper::toDto).toList();
     }
 
+    @Override
     @Transactional
     public CommentResponseDto addComment(Long itemId, Long userId, CommentDto dto) {
         Item item = getItemOrThrow(itemId);

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
 @Validated
 public class ItemController {
 
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
 
     /**
      * Создает новую вещь.

@@ -10,9 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -21,7 +19,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(ItemController.class)
 class ItemControllerTest {
@@ -123,5 +120,29 @@ class ItemControllerTest {
                         .param("text", "test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(itemResponseDto.getId()));
+    }
+
+    @Test
+    void addComment_ShouldReturnCommentResponseDto() throws Exception {
+        CommentDto commentDto = CommentDto.builder()
+                .text("Nice item!")
+                .build();
+
+        CommentResponseDto response = CommentResponseDto.builder()
+                .id(1L)
+                .text("Nice item!")
+                .authorName("Test user")
+                .build();
+
+        when(itemService.addComment(1L, 1L, commentDto)).thenReturn(response);
+
+        mockMvc.perform(post("/items/1/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto))
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(response.getId()))
+                .andExpect(jsonPath("$.text").value(response.getText()))
+                .andExpect(jsonPath("$.authorName").value(response.getAuthorName()));
     }
 }
