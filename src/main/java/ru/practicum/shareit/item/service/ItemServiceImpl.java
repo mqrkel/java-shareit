@@ -29,6 +29,8 @@ import java.util.List;
 @Slf4j
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
@@ -43,10 +45,10 @@ public class ItemServiceImpl implements ItemService {
         ItemRequest request = itemDto.getRequestId() == null ? null :
                 requestRepository.findById(itemDto.getRequestId()).orElse(null);
 
-        Item item = ItemMapper.toEntity(itemDto, owner, request);
+        Item item = itemMapper.toEntity(itemDto, owner, request);
         Item savedItem = itemRepository.save(item);
         log.debug("Вещь успешно создана: {}", savedItem);
-        return ItemMapper.toDto(savedItem);
+        return itemMapper.toDto(savedItem);
     }
 
 
@@ -61,18 +63,12 @@ public class ItemServiceImpl implements ItemService {
             throw new ForbiddenException("Редактировать вещь может только её владелец");
         }
 
-        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
-            item.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
-            item.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
-        }
+        itemMapper.updateItemFromDto(itemDto, item);
+
         log.debug("Вещь успешно обновлена: {}", item);
-        return ItemMapper.toDto(item);
+        return itemMapper.toDto(item);
     }
+
 
     @Override
     public ItemResponseDto getById(Long itemId, Long userId) {
@@ -81,10 +77,10 @@ public class ItemServiceImpl implements ItemService {
 
         List<Comment> comments = commentRepository.findByItemId(itemId);
         List<CommentResponseDto> commentDtos = comments.stream()
-                .map(CommentMapper::toDto)
+                .map(commentMapper::toDto)
                 .toList();
 
-        ItemResponseDto dto = ItemMapper.toDto(item);
+        ItemResponseDto dto = itemMapper.toDto(item);
         dto.setComments(commentDtos);
 
         return dto;
@@ -101,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
             List<Booking> bookings = bookingRepository.findByItemIdOrderByStartAsc(item.getId());
             List<Comment> comments = commentRepository.findByItemId(item.getId());
 
-            ItemResponseDto dto = ItemMapper.toDto(item);
+            ItemResponseDto dto = itemMapper.toDto(item);
 
             dto.setLastBooking(bookings.stream()
                     .filter(b -> b.getEnd().isBefore(now))
@@ -116,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
                     .orElse(null));
 
             dto.setComments(comments.stream()
-                    .map(CommentMapper::toDto)
+                    .map(commentMapper::toDto)
                     .toList());
 
             return dto;
@@ -133,7 +129,9 @@ public class ItemServiceImpl implements ItemService {
         }
         List<Item> items = itemRepository.searchAvailableByText(text);
         log.debug("Найдено {} вещей по запросу '{}'", items.size(), text);
-        return items.stream().map(ItemMapper::toDto).toList();
+        return items.stream()
+                .map(itemMapper::toDto)
+                .toList();
     }
 
     @Override
@@ -155,7 +153,7 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         Comment saved = commentRepository.save(comment);
-        return CommentMapper.toDto(saved);
+        return commentMapper.toDto(saved);
     }
 
     private User getUserOrThrow(Long userId) {

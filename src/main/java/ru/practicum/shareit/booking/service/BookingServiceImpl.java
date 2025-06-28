@@ -33,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingMapper bookingMapper;
 
     /**
      * Создаёт новое бронирование вещи.
@@ -67,12 +68,12 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Создание бронирования: userId={}, itemId={}, start={}, end={}",
                 bookerId, bookingDto.getItemId(), bookingDto.getStart(), bookingDto.getEnd());
-        Booking booking = BookingMapper.toEntity(bookingDto, item, booker);
+        Booking booking = bookingMapper.toEntity(bookingDto, item, booker);
         booking.setStatus(WAITING);
 
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Бронирование создано: bookingId={}", savedBooking.getId());
-        return BookingMapper.toDto(savedBooking);
+        return bookingMapper.toDto(savedBooking);
     }
 
     /**
@@ -105,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingId, ownerId, approved);
         booking.setStatus(approved ? APPROVED : REJECTED);
         log.info("Статус бронирования обновлён: bookingId={}, новый статус={}", booking.getId(), booking.getStatus());
-        return BookingMapper.toDto(booking);
+        return bookingMapper.toDto(booking);
     }
 
     /**
@@ -128,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Доступ запрещён");
         }
         log.info("Получение бронирования по id: bookingId={}, запрашивает userId={}", bookingId, userId);
-        return BookingMapper.toDto(booking);
+        return bookingMapper.toDto(booking);
     }
 
     /**
@@ -162,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение бронирований пользователя: bookerId={}, state={}, from={}, size={}",
                 bookerId, state, from, size);
         return bookings.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .toList();
     }
 
@@ -195,7 +196,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение бронирований владельца: ownerId={}, state={}, from={}, size={}",
                 ownerId, state, from, size);
         return bookings.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .toList();
     }
 

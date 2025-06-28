@@ -15,6 +15,7 @@ import ru.practicum.shareit.request.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,6 +25,7 @@ import java.util.List;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final ItemRequestMapper itemRequestMapper;
 
     /**
      * Создаёт новый запрос на вещь от пользователя.
@@ -34,16 +36,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
      * @throws NotFoundException если пользователь не найден
      */
     @Override
+    @Transactional
     public ItemRequestResponseDto create(Long userId, ItemRequestDto dto) {
         log.info("Создание запроса от пользователя ID={}, описание='{}'", userId, dto.getDescription());
 
         User user = getUserOrThrow(userId);
 
-        ItemRequest request = ItemRequestMapper.toEntity(dto, user);
+        ItemRequest request = itemRequestMapper.toEntity(dto, user);
+        request.setCreated(LocalDateTime.now());
         ItemRequest saved = requestRepository.save(request);
 
         log.debug("Запрос успешно сохранён: {}", saved);
-        return ItemRequestMapper.toDto(saved);
+        return itemRequestMapper.toDto(saved);
     }
 
     /**
@@ -63,7 +67,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.debug("Найдено {} собственных запросов для пользователя ID={}", requests.size(), userId);
 
         return requests.stream()
-                .map(ItemRequestMapper::toDto)
+                .map(itemRequestMapper::toDto)
                 .toList();
     }
 
@@ -88,7 +92,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.debug("Найдено {} чужих запросов для пользователя ID={}", requests.size(), userId);
 
         return requests.stream()
-                .map(ItemRequestMapper::toDto)
+                .map(itemRequestMapper::toDto)
                 .toList();
     }
 

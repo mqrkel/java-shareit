@@ -20,6 +20,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -27,8 +28,8 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(newUserDto.getEmail()).isPresent()) {
             throw new ConflictException("Пользователь с email " + newUserDto.getEmail() + " уже существует");
         }
-        User user = UserMapper.toEntity(newUserDto);
-        return UserMapper.toDto(userRepository.save(user));
+        User user = userMapper.toEntity(newUserDto);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
@@ -44,21 +45,22 @@ public class UserServiceImpl implements UserService {
                     });
         }
 
-        User updated = UserMapper.merge(existingUser, userDto);
-        return UserMapper.toDto(userRepository.save(updated));
+        userMapper.updateUserFromDto(userDto, existingUser);
+        return userMapper.toDto(userRepository.save(existingUser));
     }
 
     @Override
     public UserResponseDto getById(Long id) {
-        return UserMapper.toDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден")));
+        return userMapper.toDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден")));
     }
 
     @Override
     public List<UserResponseDto> getAll() {
-        return userRepository.findAll().stream().map(UserMapper::toDto).toList();
+        return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
