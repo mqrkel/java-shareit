@@ -1,39 +1,31 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.*;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.dto.UserMapper;
 
-import static ru.practicum.shareit.booking.Booking.BookingStatus.WAITING;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BookingMapper {
-
-    public static Booking toEntity(BookingDto dto, Item item, User booker) {
-        return Booking.builder()
-                .start(dto.getStart())
-                .end(dto.getEnd())
-                .item(item)
-                .booker(booker)
-                .status(WAITING)
-                .build();
-    }
-
-    public static BookingResponseDto toDto(Booking booking) {
-        if (booking == null) {
-            return null;
+@Mapper(
+        componentModel = "spring",
+        uses = {
+                ru.practicum.shareit.item.dto.ItemMapper.class,
+                ru.practicum.shareit.user.dto.UserMapper.class
         }
-        return BookingResponseDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .item(ItemMapper.toDto(booking.getItem()))
-                .booker(UserMapper.toDto(booking.getBooker()))
-                .status(booking.getStatus().name())
-                .build();
+)
+public interface BookingMapper {
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "booker", target = "booker")
+    @Mapping(source = "item", target = "item")
+    @Mapping(source = "dto.start", target = "start")
+    @Mapping(source = "dto.end", target = "end")
+    Booking toEntity(BookingDto dto, Item item, User booker);
+
+    @Mapping(source = "status", target = "status", qualifiedByName = "statusToString")
+    BookingResponseDto toDto(Booking booking);
+
+    @Named("statusToString")
+    static String statusToString(Enum<?> status) {
+        return status != null ? status.name() : null;
     }
 }

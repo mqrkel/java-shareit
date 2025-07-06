@@ -81,13 +81,20 @@ class ItemRequestControllerTest {
 
     @Test
     void getAllRequests_ShouldReturnList() throws Exception {
-        when(requestService.getAllRequests(7L))
+        int from = 0;
+        int size = 10;
+
+        when(requestService.getAllRequests(7L, from, size))
                 .thenReturn(List.of(responseDto));
 
         mvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 7L))
+                        .header("X-Sharer-User-Id", 7L)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(responseDto.getId()))
-                .andExpect(jsonPath("$[0].requestorId").value(responseDto.getRequestorId()));
+                .andExpect(jsonPath("$[0].description").value(responseDto.getDescription()))
+                .andExpect(jsonPath("$[0].requestorId").value(responseDto.getRequestorId()))
+                .andExpect(jsonPath("$[0].created").exists());
     }
 }

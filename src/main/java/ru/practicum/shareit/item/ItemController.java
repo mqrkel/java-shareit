@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -96,5 +94,21 @@ public class ItemController {
     public List<ItemResponseDto> searchAvailable(@RequestParam String text) {
         log.info("GET /items/search - поиск вещей по тексту '{}'", text);
         return itemService.searchAvailable(text);
+    }
+
+    /**
+     * Добавляет комментарий к вещи от имени пользователя.
+     *
+     * @param itemId     идентификатор вещи, к которой добавляется комментарий
+     * @param userId     идентификатор пользователя, добавляющего комментарий (из заголовка "X-Sharer-User-Id")
+     * @param commentDto тело запроса с текстом комментария
+     * @return DTO с информацией о добавленном комментарии
+     */
+    @PostMapping("/{itemId}/comment")
+    public CommentResponseDto addComment(@PathVariable Long itemId,
+                                         @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @Valid @RequestBody CommentDto commentDto) {
+        log.info("POST /items/{}/comment - пользователь ID={} оставляет комментарий", itemId, userId);
+        return itemService.addComment(itemId, userId, commentDto);
     }
 }
